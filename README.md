@@ -7,3 +7,5 @@
  Critical access and API keys should be encrypted with Fernet and the resulting encrypted tokens stored in `./settings/_settings.py`. You can generate a Fernet key and created encrypted tokens with the online Fernet utility located [here](https://8gwifi.org/fernet.jsp).
  
 **Note:** DO NOT store your actual Fernet key in the settings file. You should supply the Fernet key by setting the environment variable `FERNET_KEY` with the appropriate Fernet key value.
+
+This utility requires access to a DynamoDB table for storing the history of tooted posts.
