@@ -33,22 +33,26 @@ Where "xxxx" is the Fernet key used to encrypt your access tokens.
 
 ## Configuration Settings
 
-All configuration settings required for the utility are store in the file `./settings/_settings.py`. All variables defined in the settings file can be overriden by providing an identical variable in the local environment. Variables defined in the environment take precendence.
+All configuration settings required for the utility are stored in the file `./settings/_settings.py`. All variables defined in the settings file can be overriden by providing an identical variable in the local environment. Variables defined in the environment take precendence.
 
 The required configuration settings are:
 
 ```
 # The AWS access key ID for AWS DynamoDB access - Fernet-encrypted
 AWS_ACCESS_KEY_ID = "xxxx" <---- replace with your encrypted access key ID
+
 # The AWS secret access key for AWS DynamoDB access - Fernet-encrypted
 AWS_ACCESS_KEY = "xxxx" <---- replace with your encrypted access key
+
 # The primary region for the DynamoDB cache DB
 AWS_REGION = "us-west-2" <---- replace with your primary region
 
 # The name of the DynamoDB partition key used by the feed cache
 DYNAMO_DB_P_KEY_NAME = "feed" <---- no need to change this
+
 # The name of the DynamoDB sort key used by the feed cache
 DYNAMO_DB_S_KEY_NAME = "item_id" <---- no need to change this
+
 # The name of the DynamoDB table used for the feed cache
 DYNAMO_DB_TABLE = "blog-feed-cache" <---- no need to change this
 
@@ -61,8 +65,10 @@ FERNET_KEY = None <---- Pass as an argument or define this in the environment
 
 # The Mastodon API access token used to post statuses - Fernet-encrypted
 MASTODON_ACCESS_TOKEN = "xxxx" <---- replace with your encrypted Mastodon access token
+
 # The base URL of your Mastodon instance
 MASTODON_BASE_URL = "https://hachyderm.io"  <---- replace with your Mastodon instance URL
+
 # The status visibility of your status posts - one of ['direct'|'private'|'unlisted'|'public']
 # Use 'direct' while testing to make toots only visible to you
 MASTODON_STATUS_VISIBILITY = "public"  <---- can leave as-is unless testing
@@ -70,6 +76,6 @@ MASTODON_STATUS_VISIBILITY = "public"  <---- can leave as-is unless testing
 
 **Note:** This utility has not been tested with Atom feeds, though it should be trivial to modify to accomodate them.
 
-**Note:** Critical access and API keys must be encrypted with Fernet and the resulting encrypted tokens stored in the settings file. You can generate a Fernet key and create encrypted tokens using that key with the online Fernet utility located [here](https://8gwifi.org/fernet.jsp).
+**Note:** Critical access and API keys must be encrypted with Fernet and the resulting encrypted tokens stored in the settings file (or provided as environment variables). You can generate a Fernet key and create encrypted tokens using that key with the online Fernet utility located [here](https://8gwifi.org/fernet.jsp).
  
 **Note:** _**DO NOT**_ store your actual Fernet key in the settings file. You should supply the Fernet key either by passing it as an argument to the utility, or by setting the environment variable `FERNET_KEY` with the appropriate Fernet key value.
