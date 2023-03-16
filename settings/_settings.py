@@ -23,9 +23,9 @@ FEED_URL = "https://your.blog/index.xml"
 FERNET_KEY = None
 
 # The Mastodon API access token used to post statuses - Fernet-encrypted
-MASTODON_ACCESS_TOKEN = "XXXX"
+MASTODON_ACCESS_TOKEN = "xxxx"
 # The base URL of your Mastodon instance
-MASTODON_BASE_URL = "https://mastodon.social"
+MASTODON_BASE_URL = "https://hachyderm.io"
 # The status visibility of your status posts - one of ['direct'|'private'|'unlisted'|'public']
 # Use 'direct' while testing to make toots only visible to you
 MASTODON_STATUS_VISIBILITY = "public"

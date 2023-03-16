@@ -2,6 +2,7 @@
 """
 The Toot RSS client - reads an RSS feed and toots out new feed items to a Mastodon account
 """
+import argparse
 import settings as S
 from mastodon import Mastodon
 from modules.encrypted_token import EncryptedToken
@@ -12,6 +13,17 @@ from modules.rss_feed import Feed
 C = None
 F = None
 M = None
+
+def get_args() -> None:
+    # Get arguments passed into the program
+    argParser = argparse.ArgumentParser(
+        prog="tootrss",
+        description="A utility to toot rss posts to Mastodon"
+    )
+    argParser.add_argument("--fernet_key",type=str)
+    args = argParser.parse_args()
+    if args.fernet_key:
+        S.FERNET_KEY = args.fernet_key
 
 def init() -> None:
     # Initialize the globals
@@ -69,5 +81,6 @@ def process_feed() -> None:
             post_and_put(F, item_key)
 
 if __name__ == "__main__":
+    get_args()
     init()
     process_feed()
