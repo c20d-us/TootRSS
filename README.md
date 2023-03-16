@@ -15,12 +15,12 @@ optional arguments:
 
 **Examples**
 ```
-mymac:~ jdoe$ export FERNET_KEY="xxxx"
-mymac:~ jdoe$ ./tootrss
+mymac:~ jdoe$ ./tootrss --fernet_key xxxx
 ```
 or
 ```
-mymac:~ jdoe$ ./tootrss --fernet_key xxxx
+mymac:~ jdoe$ export FERNET_KEY="xxxx"
+mymac:~ jdoe$ ./tootrss
 ```
 Where "xxxx" is the Fernet key used to encrypt your access tokens.
 
