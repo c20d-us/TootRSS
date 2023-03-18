@@ -28,7 +28,7 @@ or
 mymac:~ jdoe$ export FERNET_KEY="xxxx"
 mymac:~ jdoe$ ./tootrss
 ```
-Where "xxxx" is the Fernet key used to encrypt your access tokens.
+Where `"xxxx"` is the Fernet key used to encrypt your access tokens.
 
 ## Requirements
 * TootRSS was built to run on Python 3.9+. Module requirements are listed in `./requirements/reqs.txt`.
@@ -84,4 +84,4 @@ MASTODON_STATUS_VISIBILITY = "public"  <---- can leave as-is unless testing
 
 **Note:** Critical access and API keys must be encrypted with Fernet and the resulting encrypted tokens stored in the settings file (or provided as environment variables). You can generate a Fernet key and create encrypted tokens using that key with the online Fernet utility located [here](https://8gwifi.org/fernet.jsp).
  
-**Note:** _**DO NOT**_ store your actual Fernet key in the settings file. You should supply the Fernet key either by passing it as an argument to the utility, or by setting the environment variable `FERNET_KEY` with the appropriate Fernet key value.
+**Note:** _**DO NOT**_ store your Fernet key in the settings file. You should supply the Fernet key either by passing it as an argument to the utility, or by setting the environment variable `FERNET_KEY` with the appropriate Fernet key value.
