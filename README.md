@@ -1,6 +1,6 @@
 ### TootRSS
 
-TootRSS is utility that will read an RSS feed and toot new posts from the RSS feed to a Mastodon account. It uses a DynamoDB-based cache to store information about feed items that have been tooted, so that only newly published posts trigger a Mastodon status update.
+TootRSS is utility that will read an RSS feed and toot new posts in the RSS feed to a Mastodon account. It uses a DynamoDB-based cache to store information about feed items that have been tooted, so that only newly published posts trigger a Mastodon status update.
 
 ## Usage
 ```
