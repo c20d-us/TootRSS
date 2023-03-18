@@ -4,18 +4,24 @@ TootRSS is utility that will read an RSS feed and toot new posts in the RSS feed
 
 ## Usage
 ```
-usage: tootrss [-h] [--fernet_key FERNET_KEY]
+usage: tootrss [-h] [-c] [-k FERNET_KEY]
 
 A utility to toot rss posts to Mastodon
 
 optional arguments:
   -h, --help            show this help message and exit
-  --fernet_key FERNET_KEY
+  -c, --cache           build the feed cache - do not toot
+  -k FERNET_KEY, --fernet_key FERNET_KEY
+                        the Fernet key used to ecrypt tokens
 ```
 
 **Examples**
 ```
-mymac:~ jdoe$ ./tootrss --fernet_key xxxx
+mymac:~ jdoe$ ./tootrss -k xxxx
+```
+or
+```
+mymac:~ jdoe$ ./tootrss -c --fernet_key xxxx
 ```
 or
 ```
@@ -25,11 +31,11 @@ mymac:~ jdoe$ ./tootrss
 Where "xxxx" is the Fernet key used to encrypt your access tokens.
 
 ## Requirements
-* TootRSS was built to run on Python 3.9+. Module requirements are listed in `./requirements/reqs.txt`
-* The `./mkvenv.sh` script will create a Python virtual environment that fulfills the module needs of the utility
+* TootRSS was built to run on Python 3.9+. Module requirements are listed in `./requirements/reqs.txt`.
+* The `./mkvenv.sh` script will create a Python virtual environment that fulfills the module needs of the utility.
+* You will need active and valid AWS access credentials for an account that can contain a DynamoDB Table. You can find instructions on how to set up an approptiate IAM user in the AWS documentation.
 * TootRSS requires read and write access to a properly structured DynamoDB table.
-    * ToDo: add logic to the `feed_cache.py` module to auto-create the table if it does not exist
-* You will need active and valid AWS access credentials to read and write to the DynamoDB table. You can find instructions on how to set up an approptiate IAM user in the AWS documentation.
+  * If the DynamoDB table does not exist in the provided account, the table will be created.
 
 ## Configuration Settings
 

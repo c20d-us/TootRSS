@@ -1,7 +1,7 @@
 """
 A wrapper class for the feed cache stored in DynamoDB
 """
-import boto3
+import boto3.session
 
 
 class FeedCache:
@@ -24,25 +24,54 @@ class FeedCache:
         The name of the table's sort key
     """
 
-    def __init__(self, access_key_id: str, access_key: str, region: str, table_name: str, p_key_name: str, s_key_name: str) -> None:
+    def __init__(
+        self,
+        access_key_id: str,
+        access_key: str,
+        region: str,
+        table_name: str,
+        p_key_name: str,
+        s_key_name: str,
+    ) -> None:
         """
         The initializer
         """
+        AttrDefs = [
+            {"AttributeName": p_key_name, "AttributeType": "S"},
+            {"AttributeName": s_key_name, "AttributeType": "S"},
+        ]
+        KeySchema = [
+            {"AttributeName": p_key_name, "KeyType": "HASH"},
+            {"AttributeName": s_key_name, "KeyType": "RANGE"},
+        ]
         self._table = None
         self._p_key_name = p_key_name
         self._s_key_name = s_key_name
         try:
-            ddb = boto3.resource(
-                "dynamodb",
+            session = boto3.session.Session(
                 aws_access_key_id=access_key_id,
                 aws_secret_access_key=access_key,
                 region_name=region,
             )
-            self._table = ddb.Table(table_name)
+            ddb = session.resource("dynamodb")
+            table_names = [table.name for table in ddb.tables.all()]
+            if table_name in table_names:
+                self._table = ddb.Table(table_name)
+            else:
+                print("The feed cache table doesn't exist; creating...")
+                ddb_table = ddb.create_table(
+                    TableName=table_name,
+                    BillingMode="PAY_PER_REQUEST",
+                    KeySchema=KeySchema,
+                    AttributeDefinitions=AttrDefs,
+                )
+                print("Waiting on the table to be ready...")
+                session.client("dynamodb").get_waiter("table_exists").wait(
+                    TableName=table_name
+                )
+                self._table = ddb_table
         except Exception:
-            raise Exception(
-                f"Could not instantiate the FeedCache object."
-            )
+            raise Exception(f"Could not instantiate the FeedCache object.")
 
     def get_all(self) -> list[dict]:
         """
@@ -70,7 +99,9 @@ class FeedCache:
             raise Exception("Get_item encountered exception")
         return item
 
-    def put_item(self, p_key: str, s_key: str, link: str, title: str, tooted: bool) -> bool:
+    def put_item(
+        self, p_key: str, s_key: str, link: str, title: str, tooted: bool
+    ) -> bool:
         """
         Put a single item into the DynamoDC cache, overwriting if already present
         """
@@ -80,9 +111,9 @@ class FeedCache:
                 Item={
                     self._p_key_name: p_key,
                     self._s_key_name: s_key,
-                    'link': link,
-                    'title': title,
-                    'tooted': tooted
+                    "link": link,
+                    "title": title,
+                    "tooted": tooted,
                 }
             )
         except:

@@ -10,77 +10,110 @@ from modules.feed_cache import FeedCache
 from modules.rss_feed import Feed
 
 # Global objects used later
-C = None
-F = None
-M = None
+CACHE_ONLY = False
+PROCESSED_ITEMS = 0
+POSTED_ITEMS = 0
+QUIET = False
+C = F = M = None
 
-def get_args() -> None:
-    # Get arguments passed into the program
-    argParser = argparse.ArgumentParser(
-        prog="tootrss",
-        description="A utility to toot rss posts to Mastodon"
-    )
-    argParser.add_argument("--fernet_key",type=str)
-    args = argParser.parse_args()
-    if args.fernet_key:
-        S.FERNET_KEY = args.fernet_key
+
+def inform(msg: str = None) -> None:
+    if not QUIET:
+        print(msg)
+
 
 def init() -> None:
     # Initialize the globals
     global C, F, M
-    try:
-        C = FeedCache(
-            access_key_id=EncryptedToken(S.FERNET_KEY, S.AWS_ACCESS_KEY_ID).decrypt(),
-            access_key=EncryptedToken(S.FERNET_KEY, S.AWS_ACCESS_KEY).decrypt(),
-            region=S.AWS_REGION,
-            table_name=S.DYNAMO_DB_TABLE,
-            p_key_name=S.DYNAMO_DB_P_KEY_NAME,
-            s_key_name=S.DYNAMO_DB_S_KEY_NAME
-        )
-        F = Feed(S.FEED_URL)
-        M = Mastodon(
-            access_token = EncryptedToken(S.FERNET_KEY, S.MASTODON_ACCESS_TOKEN).decrypt(),
-            api_base_url=S.MASTODON_BASE_URL
-        )
-    except Exception as ex:
-        print(ex)
-
-def status_post(feed_title: str, item_title: str, link: str) -> None:
-    # Post a status for this feed item to Mastodon
-    post_message = (
-        f"I just published a new post on {feed_title}. Check it out!\n\n"
-        f"\"{item_title}\"\n"
-        f"{link}"
+    C = FeedCache(
+        access_key_id=EncryptedToken(S.FERNET_KEY, S.AWS_ACCESS_KEY_ID).decrypt(),
+        access_key=EncryptedToken(S.FERNET_KEY, S.AWS_ACCESS_KEY).decrypt(),
+        region=S.AWS_REGION,
+        table_name=S.DYNAMO_DB_TABLE,
+        p_key_name=S.DYNAMO_DB_P_KEY_NAME,
+        s_key_name=S.DYNAMO_DB_S_KEY_NAME,
     )
-    M.status_post(
-        post_message,
-        visibility=S.MASTODON_STATUS_VISIBILITY
+    F = Feed(S.FEED_URL)
+    M = Mastodon(
+        access_token=EncryptedToken(S.FERNET_KEY, S.MASTODON_ACCESS_TOKEN).decrypt(),
+        api_base_url=S.MASTODON_BASE_URL,
     )
 
-def post_and_put(feed: Feed, item_key: str) -> None:
-    # Post a status for this feed item, then put it in the feed cache
-    status_post(feed.title, feed.items[item_key]['title'], feed.items[item_key]['link'])
+
+def get_args() -> None:
+    # Get arguments passed into the program
+    global CACHE_ONLY, QUIET
+    argParser = argparse.ArgumentParser(
+        prog="tootrss", description="A utility to toot rss posts to Mastodon"
+    )
+    argParser.add_argument(
+        "-c", "--cache", action="store_true", help="build the feed cache - do not toot"
+    )
+    argParser.add_argument(
+        "-k", "--fernet_key", default=None, help="the Fernet key used to ecrypt tokens"
+    )
+    argParser.add_argument(
+        "-q", "--quiet", action="store_true", help="suppress progress messages"
+    )
+    args = argParser.parse_args()
+    S.FERNET_KEY = args.fernet_key
+    CACHE_ONLY = args.cache
+    QUIET = args.quiet
+
+
+def cache_item(feed: Feed, item_key: str) -> None:
     C.put_item(
         p_key=feed.title,
         s_key=item_key,
-        link=feed.items[item_key]['link'],
-        title=feed.items[item_key]['title'],
-        tooted=True
+        link=feed.items[item_key]["link"],
+        title=feed.items[item_key]["title"],
+        tooted=True,
     )
+    inform(f'Cached item "{item_key}" in the feed cache.')
+
+
+def post_item(feed: Feed, item_key: str) -> None:
+    global POSTED_ITEMS
+    # Post a status for this feed item
+    try:
+        M.status_post(
+            (
+                f"I just published a new post on {feed.title}. Check it out!\n\n"
+                f"\"{feed.items[item_key]['title']}\"\n"
+                f"{feed.items[item_key]['link']}"
+            ),
+            visibility=S.MASTODON_STATUS_VISIBILITY,
+        )
+    except:
+        print("Error!")
+    finally:
+        POSTED_ITEMS += 1
+        inform(f"Posted item \"{feed.items[item_key]['title']}\" to Mastodon.")
+
 
 def process_feed() -> None:
+    global POSTED_ITEMS, PROCESSED_ITEMS
     # Get the list of post items in the feed, sorted oldest-to-newest
     for item_key in sorted(F.items):
+        PROCESSED_ITEMS += 1
         # See if there is already a cache record for this item
         cache_record = C.get_item(F.title, item_key)
         if not cache_record:
-            # If there's no cache item, post the toot about it and put it in the cache
-            post_and_put(F, item_key)
-        if cache_record and not cache_record['tooted']:
-            # If there is a cache item, but it hasn't been tooted yet, post and cache
-            post_and_put(F, item_key)
+            # If the item isn't in the cache, we need to cache it, or post it and cache it
+            if CACHE_ONLY:
+                cache_item(F, item_key)
+            else:
+                post_item(F, item_key)
+                cache_item(F, item_key)
+        if cache_record and not cache_record["tooted"]:
+            post_item(F, item_key)
+            cache_item(F, item_key)
+
 
 if __name__ == "__main__":
     get_args()
     init()
     process_feed()
+    inform(
+        f"Processed {PROCESSED_ITEMS} items\nPosted {POSTED_ITEMS} items to Mastodon"
+    )

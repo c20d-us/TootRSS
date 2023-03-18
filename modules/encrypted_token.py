@@ -25,9 +25,7 @@ class EncryptedToken:
         try:
             self._F = Fernet(fernet_key)
         except:
-            raise Exception(
-                f"The supplied fernet key was invalid: {fernet_key}"
-            )
+            raise Exception(f"The supplied fernet key was invalid: {fernet_key}")
 
     def decrypt(self) -> str:
         """
@@ -37,7 +35,5 @@ class EncryptedToken:
         try:
             decrypted_token = self._F.decrypt(self._token).decode("utf-8")
         except:
-            raise Exception(
-                f"The encrypted token was invalid: {self._token=}"
-            )
+            raise Exception(f"The encrypted token was invalid: {self._token=}")
         return decrypted_token
