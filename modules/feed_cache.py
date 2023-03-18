@@ -70,7 +70,8 @@ class FeedCache:
                     TableName=table_name
                 )
                 self._table = ddb_table
-        except Exception:
+        except Exception as ex:
+            print(ex)
             raise Exception(f"Could not instantiate the FeedCache object.")
 
     def get_all(self) -> list[dict]:
