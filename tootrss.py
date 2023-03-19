@@ -125,4 +125,4 @@ if __name__ == "__main__":
             f"Cached {CACHED_ITEMS} items in the feed cache"
         )
     except:
-        log.inform("TootRSS encountered a fatal exception - exiting")
+        log.crit("TootRSS encountered a fatal exception - exiting")
