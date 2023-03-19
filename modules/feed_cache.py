@@ -2,6 +2,7 @@
 A wrapper class for the feed cache stored in DynamoDB
 """
 import boto3.session
+from modules.log import Log
 
 
 class FeedCache:
@@ -24,6 +25,8 @@ class FeedCache:
         The name of the table's sort key
     """
 
+    log = None
+
     def __init__(
         self,
         access_key_id: str,
@@ -36,6 +39,8 @@ class FeedCache:
         """
         The initializer
         """
+        global log
+        log = Log()
         AttrDefs = [
             {"AttributeName": p_key_name, "AttributeType": "S"},
             {"AttributeName": s_key_name, "AttributeType": "S"},
@@ -58,21 +63,23 @@ class FeedCache:
             if table_name in table_names:
                 self._table = ddb.Table(table_name)
             else:
-                print("The feed cache table doesn't exist; creating...")
+                log.inform(
+                    f'The feed cache table "{table_name}" doesn\'t exist; attempting to create...'
+                )
                 ddb_table = ddb.create_table(
                     TableName=table_name,
                     BillingMode="PAY_PER_REQUEST",
                     KeySchema=KeySchema,
                     AttributeDefinitions=AttrDefs,
                 )
-                print("Waiting on the table to be ready...")
+                log.inform("Waiting on the table to be ready...")
                 session.client("dynamodb").get_waiter("table_exists").wait(
                     TableName=table_name
                 )
                 self._table = ddb_table
-        except Exception as ex:
-            print(ex)
-            raise Exception(f"Could not instantiate the FeedCache object.")
+        except:
+            log.crit("Could not instantiate the FeedCache object.")
+            raise Exception()
 
     def get_all(self) -> list[dict]:
         """
@@ -82,8 +89,9 @@ class FeedCache:
         try:
             response = self._table.scan()
             items = response["Items"]
-        except Exception as ex:
-            raise Exception(f"get_all encountered exception {ex}")
+        except:
+            log.crit("The get_all attempt encountered an exception")
+            raise Exception()
         return items
 
     def get_item(self, p_key: str, s_key: str) -> dict:
@@ -96,8 +104,9 @@ class FeedCache:
                 Key={self._p_key_name: p_key, self._s_key_name: s_key}
             )
             item = response.get("Item")
-        except Exception:
-            raise Exception("Get_item encountered exception")
+        except:
+            log.crit("The get_item attempt encountered an exception")
+            raise Exception()
         return item
 
     def put_item(
@@ -118,5 +127,6 @@ class FeedCache:
                 }
             )
         except:
-            raise Exception("Problem!")
+            log.crit("The put_item attempt encountered an exception")
+            raise Exception()
         return put_success

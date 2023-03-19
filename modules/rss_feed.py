@@ -2,6 +2,7 @@
 A wrapper class for an RSS feed
 """
 import feedparser
+from modules.log import Log
 
 
 class Feed:
@@ -14,10 +15,14 @@ class Feed:
         The URL of the feed to retrieve and parse
     """
 
+    log = None
+
     def __init__(self, feed_url: str = None) -> None:
         """
         The initializer
         """
+        global log
+        log = Log()
         self._items = {}
         self._title = None
         self._data = feedparser.parse(feed_url)
@@ -25,7 +30,8 @@ class Feed:
             self._title = self._data.feed.title
             self._load_items()
         else:
-            raise Exception(f"Could not parse the feed '{feed_url}'")
+            log.crit(f"Could not parse the feed '{feed_url}'")
+            raise Exception()
 
     def _make_datestamp(self, date_tuple: tuple = None) -> str:
         """

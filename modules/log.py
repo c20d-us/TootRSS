@@ -1,8 +1,19 @@
 """
-A logging wrapper class
+A simple logging wrapper class
 """
 
-class Log:
+
+# Make this a Singleton class - will only initialize once
+class Singleton(type):
+    _instances = {}
+
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+        return cls._instances[cls]
+
+
+class Log(metaclass=Singleton):
     """
     Log class
     """
@@ -31,9 +42,3 @@ class Log:
         Print a debug message
         """
         self._V and self.inform(f"DEBUG: {msg}")
-
-    def warn(self, msg: str) -> None:
-        """
-        Print a warning message
-        """
-        self._V and self.inform(f"WARN: {msg}")
