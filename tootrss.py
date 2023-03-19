@@ -26,16 +26,16 @@ def get_args() -> None:
         "-c", "--cache", action="store_true", help="build the feed cache - do not toot"
     )
     argParser.add_argument(
-        "-k", "--fernet_key", default=None, help="the Fernet key used to ecrypt tokens"
-    )
-    argParser.add_argument(
-        "-q", "--quiet", action="store_true", help="suppress progress messages"
+        "-q", "--quiet", action="store_true", help="suppress all progress messages"
     )
     argParser.add_argument(
         "-v",
         "--verbose",
         action="store_true",
         help="provide additional progress messaging",
+    )
+    argParser.add_argument(
+        "-k", "--fernet_key", default=None, help="the Fernet key used to ecrypt tokens"
     )
     args = argParser.parse_args()
     S.FERNET_KEY = args.fernet_key
@@ -102,6 +102,7 @@ def process_feed() -> None:
     global PROCESSED_ITEMS
     # Get the list of post items in the feed, sorted oldest-to-newest
     for item_key in sorted(F.items):
+        log.debug(f"Processing item {item_key}")
         # Try to get a cache record for this item
         cache_record = C.get_item(F.title, item_key)
         # If the item has not been cached and/or tooted already, we need to decide what to do with it
@@ -110,6 +111,8 @@ def process_feed() -> None:
             CACHE_ONLY or post_item(F, item_key)
             # Cache the item
             cache_item(F, item_key)
+        else:
+            log.debug(f"The item was already in the cache: {item_key}")
         PROCESSED_ITEMS += 1
 
 
