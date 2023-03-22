@@ -1,6 +1,6 @@
 ### TootRSS
 
-TootRSS is utility that will read an RSS feed and toot new posts in the RSS feed to a Mastodon account. It uses a DynamoDB-based cache to store information about feed items that have been tooted, so that only newly published posts trigger a Mastodon status update.
+TootRSS is utility that will read an RSS feed and toot new posts in the feed to a Mastodon account. It uses a DynamoDB-based cache to store information about feed items that have been tooted, so that only newly published posts trigger a Mastodon status update.
 
 ## Usage
 ```
@@ -36,9 +36,9 @@ Where `"xxxx"` is the Fernet key used to encrypt your access tokens.
 ## Requirements
 * TootRSS was built to run on Python 3.9+. Module requirements are listed in `./requirements/reqs.txt`.
 * The `./mkvenv.sh` script will create a Python virtual environment that fulfills the module needs of the utility.
-* You will need active and valid AWS access credentials for an account that can contain a DynamoDB Table. You can find instructions on how to set up an approptiate IAM user in the AWS documentation.
+* You will need active and valid AWS access credentials for an account that can contain a DynamoDB Table. You can find instructions on how to set up an appropriate IAM user in the AWS documentation.
 * TootRSS requires read and write access to a properly structured DynamoDB table.
-  * If the DynamoDB table does not exist in the provided account, the table will be created if the `-m` or `--make_table` flag has been specified on the command line.
+  * If the DynamoDB table does not exist, it will be created if the `-m` or `--make_table` flag has been specified on the command line.
 
 ## Configuration Settings
 
