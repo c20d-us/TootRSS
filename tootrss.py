@@ -12,35 +12,55 @@ from modules.rss_feed import Feed
 
 # Global variables used later
 C = F = M = log = None
-CACHE_ONLY = QUIET = VERBOSE = False
+CACHE_ONLY = MKTABLE = QUIET = VERBOSE = False
 CACHED_ITEMS = POSTED_ITEMS = PROCESSED_ITEMS = 0
+
+
+def getArgParser(
+    ap=argparse.ArgumentParser(
+        prog="tootrss", description="s utility to toot rss posts to Mastodon"
+    )
+) -> argparse.ArgumentParser:
+    ap.add_argument(
+        "-c",
+        "--cache",
+        action="store_true",
+        help="build the feed cache - do not toot"
+    )
+    ap.add_argument(
+        "-m",
+        "--make_table",
+        action="store_true",
+        help="create the feed cache table if it does not exist",
+    )
+    ap.add_argument(
+        "-q",
+        "--quiet",
+        action="store_true",
+        help="suppress all progress messages"
+    )
+    ap.add_argument(
+        "-v",
+        "--verbose",
+        action="store_true",
+        help="provide additional progress messaging",
+    )
+    ap.add_argument(
+        "-k",
+        "--fernet_key",
+        default=None,
+        help="the Fernet key used to ecrypt tokens"
+    )
+    return ap
 
 
 def get_args() -> None:
     # Get arguments passed into the program
-    global CACHE_ONLY, QUIET, VERBOSE
-    argParser = argparse.ArgumentParser(
-        prog="tootrss", description="s utility to toot rss posts to Mastodon"
-    )
-    argParser.add_argument(
-        "-c",
-        "--cache", action="store_true", help="build the feed cache - do not toot"
-    )
-    argParser.add_argument(
-        "-q",
-        "--quiet", action="store_true", help="suppress all progress messages"
-    )
-    argParser.add_argument(
-        "-v",
-        "--verbose", action="store_true", help="provide additional progress messaging",
-    )
-    argParser.add_argument(
-        "-k",
-        "--fernet_key", default=None, help="the Fernet key used to ecrypt tokens"
-    )
-    args = argParser.parse_args()
-    S.FERNET_KEY = args.fernet_key
+    global CACHE_ONLY, MKTABLE, QUIET, VERBOSE
+    args = getArgParser().parse_args()
+    S.FERNET_KEY = args.fernet_key or S.FERNET_KEY
     CACHE_ONLY = args.cache
+    MKTABLE = args.make_table
     QUIET = args.quiet
     VERBOSE = args.verbose
 
@@ -51,16 +71,19 @@ def init() -> None:
     try:
         aws_access_key = EncryptedToken(S.FERNET_KEY, S.AWS_ACCESS_KEY).decrypt()
         aws_access_key_id = EncryptedToken(S.FERNET_KEY, S.AWS_ACCESS_KEY_ID).decrypt()
-        mastodon_access_token = EncryptedToken(S.FERNET_KEY, S.MASTODON_ACCESS_TOKEN).decrypt()
-        F = Feed(S.FEED_URL)
+        mastodon_access_token = EncryptedToken(
+            S.FERNET_KEY, S.MASTODON_ACCESS_TOKEN
+        ).decrypt()
         C = FeedCache(
             access_key_id=aws_access_key_id,
             access_key=aws_access_key,
+            make_table=MKTABLE,
             region=S.AWS_REGION,
             table_name=S.DYNAMO_DB_TABLE,
             p_key_name=S.DYNAMO_DB_P_KEY_NAME,
             s_key_name=S.DYNAMO_DB_S_KEY_NAME,
         )
+        F = Feed(S.FEED_URL)
         M = Mastodon(
             access_token=mastodon_access_token,
             api_base_url=S.MASTODON_BASE_URL,
@@ -101,9 +124,11 @@ def post_item(feed: Feed, item_key: str) -> None:
         )
         POSTED_ITEMS += 1
         log.inform(f"Posted item \"{feed.items[item_key]['title']}\" to Mastodon.")
-    except:
+    except Exception as ex:
+        log.crit(f'The status_post call to Mastodon encountered an exception: "{ex}"')
         log.crit(f"Posting the item {item_key} to Mastondon failed.")
         raise Exception()
+
 
 def process_feed() -> None:
     # Get the list of post items in the feed, sorted oldest-to-newest

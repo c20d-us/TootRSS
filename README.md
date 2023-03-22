@@ -4,13 +4,14 @@ TootRSS is utility that will read an RSS feed and toot new posts in the RSS feed
 
 ## Usage
 ```
-usage: tootrss [-h] [-c] [-q] [-v] [-k FERNET_KEY]
+usage: tootrss [-h] [-c] [-m] [-q] [-v] [-k FERNET_KEY]
 
-A utility to toot rss posts to Mastodon
+s utility to toot rss posts to Mastodon
 
 optional arguments:
   -h, --help            show this help message and exit
   -c, --cache           build the feed cache - do not toot
+  -m, --make_table      create the feed cache table if it does not exist
   -q, --quiet           suppress all progress messages
   -v, --verbose         provide additional progress messaging
   -k FERNET_KEY, --fernet_key FERNET_KEY
@@ -37,7 +38,7 @@ Where `"xxxx"` is the Fernet key used to encrypt your access tokens.
 * The `./mkvenv.sh` script will create a Python virtual environment that fulfills the module needs of the utility.
 * You will need active and valid AWS access credentials for an account that can contain a DynamoDB Table. You can find instructions on how to set up an approptiate IAM user in the AWS documentation.
 * TootRSS requires read and write access to a properly structured DynamoDB table.
-  * If the DynamoDB table does not exist in the provided account, the table will be created.
+  * If the DynamoDB table does not exist in the provided account, the table will be created if the `-m` or `--make_table` flag has been specified on the command line.
 
 ## Configuration Settings
 

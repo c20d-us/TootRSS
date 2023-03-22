@@ -31,6 +31,7 @@ class FeedCache:
         self,
         access_key_id: str,
         access_key: str,
+        make_table: bool,
         region: str,
         table_name: str,
         p_key_name: str,
@@ -63,20 +64,24 @@ class FeedCache:
             if table_name in table_names:
                 self._table = ddb.Table(table_name)
             else:
-                log.inform(
-                    f'The feed cache table "{table_name}" doesn\'t exist; attempting to create...'
-                )
-                ddb_table = ddb.create_table(
-                    TableName=table_name,
-                    BillingMode="PAY_PER_REQUEST",
-                    KeySchema=KeySchema,
-                    AttributeDefinitions=AttrDefs,
-                )
-                log.inform("Waiting on the table to be ready...")
-                session.client("dynamodb").get_waiter("table_exists").wait(
-                    TableName=table_name
-                )
-                self._table = ddb_table
+                if make_table:
+                    log.inform(
+                        f'The feed cache table "{table_name}" doesn\'t exist; attempting to create...'
+                    )
+                    ddb_table = ddb.create_table(
+                        TableName=table_name,
+                        BillingMode="PAY_PER_REQUEST",
+                        KeySchema=KeySchema,
+                        AttributeDefinitions=AttrDefs,
+                    )
+                    log.inform("Waiting on the table to be ready...")
+                    session.client("dynamodb").get_waiter("table_exists").wait(
+                        TableName=table_name
+                    )
+                    self._table = ddb_table
+                else:
+                    log.crit(f'The feed cache table "{table_name}" does not exist, and make_table is not True.')
+                    raise Exception()
         except:
             log.crit("Could not instantiate the FeedCache object.")
             raise Exception()
@@ -104,8 +109,8 @@ class FeedCache:
                 Key={self._p_key_name: p_key, self._s_key_name: s_key}
             )
             item = response.get("Item")
-        except:
-            log.crit("The get_item attempt encountered an exception")
+        except Exception as ex:
+            log.crit(f"The get_item attempt encountered an exception: \"{ex}\"")
             raise Exception()
         return item
 
@@ -126,7 +131,7 @@ class FeedCache:
                     "tooted": tooted,
                 }
             )
-        except:
-            log.crit("The put_item attempt encountered an exception")
+        except Exception as ex:
+            log.crit(f"The put_item attempt encountered an exception: \"{ex}\"")
             raise Exception()
         return put_success
