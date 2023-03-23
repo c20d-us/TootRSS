@@ -60,14 +60,13 @@ class FeedCache:
                 region_name=region,
             )
             ddb = session.resource("dynamodb")
-            table_names = [table.name for table in ddb.tables.all()]
-            if table_name in table_names:
+            #table_names = [table.name for table in ddb.tables.all()]
+            #if table_name in table_names:
+            if table_name in [table.name for table in ddb.tables.all()]:
                 self._table = ddb.Table(table_name)
             else:
                 if make_table:
-                    log.inform(
-                        f'The feed cache table "{table_name}" doesn\'t exist; attempting to create...'
-                    )
+                    log.inform(f"The feed cache table \"{table_name}\" doesn\'t exist; attempting to create...")
                     ddb_table = ddb.create_table(
                         TableName=table_name,
                         BillingMode="PAY_PER_REQUEST",
@@ -80,7 +79,7 @@ class FeedCache:
                     )
                     self._table = ddb_table
                 else:
-                    log.crit(f'The feed cache table "{table_name}" does not exist, and make_table is not True.')
+                    log.crit(f"The feed cache table \"{table_name}\" does not exist, and make_table is not True.")
                     raise Exception()
         except:
             log.crit("Could not instantiate the FeedCache object.")
@@ -114,15 +113,12 @@ class FeedCache:
             raise Exception()
         return item
 
-    def put_item(
-        self, p_key: str, s_key: str, link: str, title: str, tooted: bool
-    ) -> bool:
+    def put_item(self, p_key: str, s_key: str, link: str, title: str, tooted: bool) -> None:
         """
         Put a single item into the DynamoDC cache, overwriting if already present
         """
-        put_success = False
         try:
-            response = self._table.put_item(
+            _ = self._table.put_item(
                 Item={
                     self._p_key_name: p_key,
                     self._s_key_name: s_key,
@@ -134,4 +130,3 @@ class FeedCache:
         except Exception as ex:
             log.crit(f"The put_item attempt encountered an exception: \"{ex}\"")
             raise Exception()
-        return put_success

@@ -5,7 +5,7 @@ import re
 from ast import literal_eval
 from os import getenv
 from typing import Dict, List, Tuple
-from settings import _settings
+from settings import _settings as S
 
 
 def convert_string(in_string: str = None):
@@ -55,5 +55,5 @@ def convert_string(in_string: str = None):
 
 # Override settings with values from the environment, if present,
 # and if not set in the environment, use the value from the settings file
-for _var in [x for x in vars(_settings) if re.search("[A-Z]+", x)]:
-    globals()[_var] = getenv(_var, getattr(_settings, _var))
+for _var in [x for x in vars(S) if re.match("[A-Z]", x)]:
+    globals()[_var] = getenv(_var, getattr(S, _var))

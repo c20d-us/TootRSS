@@ -9,7 +9,7 @@ class Feed:
     """
     Feed class
 
-        Parameters
+    Parameters
     ----------
     feed_uri: str
         The URL of the feed to retrieve and parse
@@ -26,12 +26,12 @@ class Feed:
         self._items = {}
         self._title = None
         self._data = feedparser.parse(feed_url)
-        if not self._data.bozo:
-            self._title = self._data.feed.title
-            self._load_items()
-        else:
+        if self._data.bozo:
             log.crit(f"Could not parse the feed '{feed_url}'")
             raise Exception()
+        else:
+            self._title = self._data.feed.title
+            self._load_items()
 
     def _make_datestamp(self, date_tuple: tuple = None) -> str:
         """

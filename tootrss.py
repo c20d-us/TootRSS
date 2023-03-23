@@ -11,14 +11,15 @@ from modules.log import Log
 from modules.rss_feed import Feed
 
 # Global variables used later
-C = F = M = log = None
+CACHE = FEED = MASTODON = log = None
 CACHE_ONLY = MKTABLE = QUIET = VERBOSE = False
 CACHED_ITEMS = POSTED_ITEMS = PROCESSED_ITEMS = 0
 
 
 def getArgParser(
     ap=argparse.ArgumentParser(
-        prog="tootrss", description="s utility to toot rss posts to Mastodon"
+        prog="tootrss",
+        description="s utility to toot rss posts to Mastodon"
     )
 ) -> argparse.ArgumentParser:
     ap.add_argument(
@@ -67,14 +68,12 @@ def get_args() -> None:
 
 def init() -> None:
     # Initialize the globals
-    global C, F, M
+    global CACHE, FEED, MASTODON
     try:
         aws_access_key = EncryptedToken(S.FERNET_KEY, S.AWS_ACCESS_KEY).decrypt()
         aws_access_key_id = EncryptedToken(S.FERNET_KEY, S.AWS_ACCESS_KEY_ID).decrypt()
-        mastodon_access_token = EncryptedToken(
-            S.FERNET_KEY, S.MASTODON_ACCESS_TOKEN
-        ).decrypt()
-        C = FeedCache(
+        mastodon_access_token = EncryptedToken(S.FERNET_KEY, S.MASTODON_ACCESS_TOKEN).decrypt()
+        CACHE = FeedCache(
             access_key_id=aws_access_key_id,
             access_key=aws_access_key,
             make_table=MKTABLE,
@@ -83,8 +82,8 @@ def init() -> None:
             p_key_name=S.DYNAMO_DB_P_KEY_NAME,
             s_key_name=S.DYNAMO_DB_S_KEY_NAME,
         )
-        F = Feed(S.FEED_URL)
-        M = Mastodon(
+        FEED = Feed(S.FEED_URL)
+        MASTODON = Mastodon(
             access_token=mastodon_access_token,
             api_base_url=S.MASTODON_BASE_URL,
         )
@@ -96,7 +95,7 @@ def cache_item(feed: Feed, item_key: str) -> None:
     # Put an item into the FeedCache
     global CACHED_ITEMS
     try:
-        C.put_item(
+        CACHE.put_item(
             p_key=feed.title,
             s_key=item_key,
             link=feed.items[item_key]["link"],
@@ -114,7 +113,7 @@ def post_item(feed: Feed, item_key: str) -> None:
     # Post a status for this feed item
     global POSTED_ITEMS
     try:
-        M.status_post(
+        MASTODON.status_post(
             (
                 f"I just published a new post on {feed.title}. Check it out!\n\n"
                 f"\"{feed.items[item_key]['title']}\"\n"
@@ -133,17 +132,17 @@ def post_item(feed: Feed, item_key: str) -> None:
 def process_feed() -> None:
     # Get the list of post items in the feed, sorted oldest-to-newest
     global PROCESSED_ITEMS
-    for item_key in sorted(F.items):
+    for item_key in sorted(FEED.items):
         log.debug(f"Processing item {item_key}")
         try:
             # Try to get a cache record for this item
-            cache_record = C.get_item(F.title, item_key)
+            cache_record = CACHE.get_item(FEED.title, item_key)
             # If the item has not been cached and/or tooted already, we need to decide what to do with it
             if not cache_record or not cache_record["tooted"]:
                 # Toot the item unless we're just caching
-                CACHE_ONLY or post_item(F, item_key)
+                CACHE_ONLY or post_item(FEED, item_key)
                 # Cache the item
-                cache_item(F, item_key)
+                cache_item(FEED, item_key)
             else:
                 log.debug(f"The item was already in the cache: {item_key}")
             PROCESSED_ITEMS += 1
