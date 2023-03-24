@@ -18,7 +18,7 @@ optional arguments:
                         the Fernet key used to ecrypt tokens
 ```
 
-**Examples**
+## Examples
 
 Read the feed and toot anything new, passing the Fernet key as an argument:
 ```
@@ -48,16 +48,16 @@ Where `"xxxx"` in the above examples is the Fernet key used to encrypt your acce
 * You will need an active Mastodon account, and you must generate an access token that will allow the TootRSS utility to post on your behalf. A good tutorial that includes the steps to do this is [here.](https://medium.com/@martin.heinz/getting-started-with-mastodon-api-in-python-9f105309ed43)
 ## Configuration Settings
 
-All configuration settings required for the utility are stored in the file `./settings/_settings.py`. All variables defined in the settings file can be overriden by providing an identical variable in the local environment. Variables defined in the environment take precendence.
+All configuration settings required for the utility are stored in the file `./settings/_settings.py`. All variables defined in the settings file can be overriden by defining an identical variable with an alternate value in the local environment. Variables defined in the environment take precendence.
 
 The required configuration settings are:
 
 ```
 # The AWS access key ID for AWS DynamoDB access - Fernet-encrypted
-AWS_ACCESS_KEY_ID = "xxxx" <---- replace with your encrypted access key ID
+AWS_ACCESS_KEY_ID = "xxxx" <---- replace with your Fernet-encrypted access key ID
 
 # The AWS secret access key for AWS DynamoDB access - Fernet-encrypted
-AWS_ACCESS_KEY = "xxxx" <---- replace with your encrypted access key
+AWS_ACCESS_KEY = "xxxx" <---- replace with your Fernet-encrypted access key
 
 # The primary region for the DynamoDB cache DB
 AWS_REGION = "us-west-2" <---- replace with your primary region
@@ -79,7 +79,7 @@ FEED_URL = "https://your.blog/index.xml" <---- replace with your feed URL
 FERNET_KEY = None <---- Pass as an argument or define this in the environment
 
 # The Mastodon API access token used to post statuses - Fernet-encrypted
-MASTODON_ACCESS_TOKEN = "xxxx" <---- replace with your encrypted Mastodon access token
+MASTODON_ACCESS_TOKEN = "xxxx" <---- replace with your Fernet-encrypted Mastodon access token
 
 # The base URL of your Mastodon instance
 MASTODON_BASE_URL = "https://hachyderm.io"  <---- replace with your Mastodon instance URL
