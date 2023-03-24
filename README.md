@@ -19,15 +19,16 @@ optional arguments:
 ```
 
 **Examples**
-Read a feed and toot anything new, passing the Fernet key as an argument:
+
+Read the feed and toot anything new, passing the Fernet key as an argument:
 ```
 mymac:~ jdoe$ ./tootrss -k xxxx
 ```
-Read a feed and just populate the feed cache (no toots), passing the Fernet key as an argument. Useful when bootstrapping for an existing feed to avoid a deluge of toots:
+Read the feed and just populate the feed cache (no toots), passing the Fernet key as an argument. Useful when bootstrapping for an existing feed to avoid a deluge of toots:
 ```
 mymac:~ jdoe$ ./tootrss -c --fernet_key xxxx
 ```
-Read a feed and toot anything new, passing the Fernet key as an environment variable (grouped to prevent environment leakage of the Fernet key after execution):
+Read the feed and toot anything new, passing the Fernet key as an environment variable (grouped to prevent environment leakage of the Fernet key after execution):
 ```
 mymac:~ jdoe$ ( export FERNET_KEY="xxxx"; ./tootrss )
 ```
@@ -36,6 +37,7 @@ Where `"xxxx"` in the above examples is the Fernet key used to encrypt your acce
 ## Requirements
 * TootRSS was built to run on Python 3.9+. Module requirements are listed in `./requirements/reqs.txt`.
 * The `./mkvenv.sh` script will create a Python virtual environment that fulfills the module needs of the utility.
+* You must have an RSS feed to query for published items
 * You will need active and valid AWS access credentials for an account that can contain a DynamoDB Table. You can find instructions on how to set up an appropriate IAM user in the AWS documentation.
 * TootRSS requires read and write access to a properly structured DynamoDB table.
   * If the DynamoDB table does not exist, it will be created if the `-m` or `--make_table` flag has been specified on the command line.
