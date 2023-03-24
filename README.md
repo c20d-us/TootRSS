@@ -82,11 +82,11 @@ FERNET_KEY = None <---- Pass as an argument or define this in the environment
 MASTODON_ACCESS_TOKEN = "xxxx" <---- replace with your Fernet-encrypted Mastodon access token
 
 # The base URL of your Mastodon instance
-MASTODON_BASE_URL = "https://hachyderm.io"  <---- replace with your Mastodon instance URL
+MASTODON_BASE_URL = "https://hachyderm.io" <---- replace with your Mastodon instance URL
 
 # The status visibility of your status posts - one of ['direct'|'private'|'unlisted'|'public']
 # Use 'direct' while testing to make toots only visible to you
-MASTODON_STATUS_VISIBILITY = "public"  <---- can leave as-is unless testing
+MASTODON_STATUS_VISIBILITY = "public" <---- can leave as-is unless testing
 ```
 
 **Note:** This utility has not been tested with Atom feeds, though it should be trivial to modify to accomodate them.
