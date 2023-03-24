@@ -28,6 +28,9 @@ Read the feed and just populate the feed cache (no toots), passing the Fernet ke
 ```
 mymac:~ jdoe$ ./tootrss -c --fernet_key xxxx
 ```
+Read the feed, populate the feed cache (no toots), and create the feed cache DynamoDB table if it doesn't already exist:
+```
+mymac:~ jdoe$ ./tootrss -c -m --fernet_key xxxx
 Read the feed and toot anything new, passing the Fernet key as an environment variable (grouped to prevent environment leakage of the Fernet key after execution):
 ```
 mymac:~ jdoe$ ( export FERNET_KEY="xxxx"; ./tootrss )
