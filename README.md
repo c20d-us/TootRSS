@@ -19,19 +19,19 @@ optional arguments:
 ```
 
 **Examples**
+Read a feed and toot anything new, passing the Fernet key as an argument:
 ```
 mymac:~ jdoe$ ./tootrss -k xxxx
 ```
-or
+Read a feed and just populate the feed cache (no toots), passing the Fernet key as an argument. Useful when bootstrapping for an existing feed to avoid a deluge of toots:
 ```
 mymac:~ jdoe$ ./tootrss -c --fernet_key xxxx
 ```
-or
+Read a feed and toot anything new, passing the Fernet key as an environment variable (grouped to prevent environment leakage of the Fernet key after execution):
 ```
-mymac:~ jdoe$ export FERNET_KEY="xxxx"
-mymac:~ jdoe$ ./tootrss
+mymac:~ jdoe$ ( export FERNET_KEY="xxxx"; ./tootrss )
 ```
-Where `"xxxx"` is the Fernet key used to encrypt your access tokens.
+Where `"xxxx"` in the above examples is the Fernet key used to encrypt your access tokens.
 
 ## Requirements
 * TootRSS was built to run on Python 3.9+. Module requirements are listed in `./requirements/reqs.txt`.
@@ -39,7 +39,7 @@ Where `"xxxx"` is the Fernet key used to encrypt your access tokens.
 * You will need active and valid AWS access credentials for an account that can contain a DynamoDB Table. You can find instructions on how to set up an appropriate IAM user in the AWS documentation.
 * TootRSS requires read and write access to a properly structured DynamoDB table.
   * If the DynamoDB table does not exist, it will be created if the `-m` or `--make_table` flag has been specified on the command line.
-
+* You will need an active Mastodon account, and you must generate an access token that will allow the TootRSS utility to post on your behalf. A good tutorial that includes the steps to do this is [here.](https://medium.com/@martin.heinz/getting-started-with-mastodon-api-in-python-9f105309ed43)
 ## Configuration Settings
 
 All configuration settings required for the utility are stored in the file `./settings/_settings.py`. All variables defined in the settings file can be overriden by providing an identical variable in the local environment. Variables defined in the environment take precendence.
@@ -87,4 +87,4 @@ MASTODON_STATUS_VISIBILITY = "public"  <---- can leave as-is unless testing
 
 **Note:** Critical access and API keys must be encrypted with Fernet and the resulting encrypted tokens stored in the settings file (or provided as environment variables). You can generate a Fernet key and create encrypted tokens using that key with the online Fernet utility located [here](https://8gwifi.org/fernet.jsp).
  
-**Note:** _**DO NOT**_ store your Fernet key in the settings file. You should supply the Fernet key either by passing it as an argument to the utility, or by setting the environment variable `FERNET_KEY` with the appropriate Fernet key value.
+**Note:** _**DO NOT**_ store your Fernet key in the settings file. You should supply the Fernet key either by passing it as an argument to the utility, or by setting the environment variable `FERNET_KEY` with the appropriate Fernet key value. With either of these methods, it's good practice to purge your shell history of the commands so that your Fernet key does not remain behind in plain text on your system.
