@@ -16,7 +16,7 @@ class FeedCache:
     access_key: str
         The AWS secret access key
     region: str
-        The AWS region of the DynamoDB, i.e., "us-west-2"
+        The AWS region of the DynamoDB
     table_name: str
         The name of the DynamoDB table to use
     p_key_name: str
