@@ -9,10 +9,11 @@ from modules.encrypted_token import EncryptedToken
 from modules.feed_cache import FeedCache
 from modules.log import Log
 from modules.rss_feed import Feed
+from typing import Dict, List, Tuple
 
 # Global variables used later
 CACHE = FEED = MASTODON = log = None
-CACHE_ONLY = MKTABLE = QUIET = VERBOSE = False
+CACHE_ONLY = MAKE_TABLE = QUIET = VERBOSE = False
 CACHED_ITEMS = POSTED_ITEMS = PROCESSED_ITEMS = 0
 
 
@@ -57,11 +58,11 @@ def getArgParser(
 
 def get_args() -> None:
     # Get arguments passed into the program
-    global CACHE_ONLY, MKTABLE, QUIET, VERBOSE
+    global CACHE_ONLY, MAKE_TABLE, QUIET, VERBOSE
     args = getArgParser().parse_args()
     S.FERNET_KEY = args.fernet_key or S.FERNET_KEY
     CACHE_ONLY = args.cache
-    MKTABLE = args.make_table
+    MAKE_TABLE = args.make_table
     QUIET = args.quiet
     VERBOSE = args.verbose
 
@@ -76,7 +77,7 @@ def init() -> None:
         CACHE = FeedCache(
             access_key_id=aws_access_key_id,
             access_key=aws_access_key,
-            make_table=MKTABLE,
+            make_table=MAKE_TABLE,
             region=S.AWS_REGION,
             table_name=S.DYNAMO_DB_TABLE,
             p_key_name=S.DYNAMO_DB_P_KEY_NAME,

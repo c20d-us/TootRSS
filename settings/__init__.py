@@ -24,7 +24,7 @@ def convert_string(in_string: str = None):
     """
     return_val = None
     if isinstance(in_string, str):
-        # It's a string. Is it intended to be a boolean?
+        # We have an input value, is it intended to be a boolean?
         if in_string.lower() in ["false", "true"]:
             try:
                 return_val = literal_eval(in_string.capitalize())
@@ -55,5 +55,6 @@ def convert_string(in_string: str = None):
 
 # Override settings with values from the environment, if present,
 # and if not set in the environment, use the value from the settings file
+# Only override vars that have names that start with a capital letter.
 for _var in [x for x in vars(S) if re.match("[A-Z]", x)]:
     globals()[_var] = getenv(_var, getattr(S, _var))
