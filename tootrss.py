@@ -20,7 +20,7 @@ CACHED_ITEMS = POSTED_ITEMS = PROCESSED_ITEMS = 0
 def getArgParser(
     ap=argparse.ArgumentParser(
         prog="tootrss",
-        description="s utility to toot rss posts to Mastodon"
+        description="a utility to toot rss posts to Mastodon"
     )
 ) -> argparse.ArgumentParser:
     ap.add_argument(
@@ -33,7 +33,7 @@ def getArgParser(
         "-m",
         "--make_table",
         action="store_true",
-        help="create the feed cache table if it does not exist",
+        help="create the feed cache table if it does not exist"
     )
     ap.add_argument(
         "-q",
@@ -45,7 +45,7 @@ def getArgParser(
         "-v",
         "--verbose",
         action="store_true",
-        help="provide additional progress messaging",
+        help="provide additional progress messaging"
     )
     ap.add_argument(
         "-k",
@@ -81,12 +81,12 @@ def init() -> None:
             region=S.AWS_REGION,
             table_name=S.DYNAMO_DB_TABLE,
             p_key_name=S.DYNAMO_DB_P_KEY_NAME,
-            s_key_name=S.DYNAMO_DB_S_KEY_NAME,
+            s_key_name=S.DYNAMO_DB_S_KEY_NAME
         )
         FEED = Feed(S.FEED_URL)
         MASTODON = Mastodon(
             access_token=mastodon_access_token,
-            api_base_url=S.MASTODON_BASE_URL,
+            api_base_url=S.MASTODON_BASE_URL
         )
     except:
         log.crit("Initialization of global variables failed.")
@@ -101,7 +101,7 @@ def cache_item(feed: Feed, item_key: str) -> None:
             s_key=item_key,
             link=feed.items[item_key]["link"],
             title=feed.items[item_key]["title"],
-            tooted=True,
+            tooted=True
         )
         CACHED_ITEMS += 1
         log.inform(f'Cached item "{item_key}" in the feed cache.')

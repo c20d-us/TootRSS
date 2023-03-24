@@ -35,83 +35,70 @@ class FeedCache:
         region: str,
         table_name: str,
         p_key_name: str,
-        s_key_name: str,
+        s_key_name: str
     ) -> None:
         """
         The initializer
         """
         global log
         log = Log()
-        AttrDefs = [
-            {"AttributeName": p_key_name, "AttributeType": "S"},
-            {"AttributeName": s_key_name, "AttributeType": "S"},
-        ]
-        KeySchema = [
-            {"AttributeName": p_key_name, "KeyType": "HASH"},
-            {"AttributeName": s_key_name, "KeyType": "RANGE"},
-        ]
         self._table = None
         self._p_key_name = p_key_name
         self._s_key_name = s_key_name
+        self._table_name = table_name
         try:
             session = boto3.session.Session(
                 aws_access_key_id=access_key_id,
                 aws_secret_access_key=access_key,
-                region_name=region,
+                region_name=region
             )
             ddb = session.resource("dynamodb")
-            #table_names = [table.name for table in ddb.tables.all()]
-            #if table_name in table_names:
-            if table_name in [table.name for table in ddb.tables.all()]:
-                self._table = ddb.Table(table_name)
-            else:
+            if not table_name in [table.name for table in ddb.tables.all()]:
                 if make_table:
-                    log.inform(f"The feed cache table \"{table_name}\" doesn\'t exist; attempting to create...")
-                    ddb_table = ddb.create_table(
-                        TableName=table_name,
-                        BillingMode="PAY_PER_REQUEST",
-                        KeySchema=KeySchema,
-                        AttributeDefinitions=AttrDefs,
-                    )
-                    log.inform("Waiting on the table to be ready...")
-                    session.client("dynamodb").get_waiter("table_exists").wait(
-                        TableName=table_name
-                    )
-                    self._table = ddb_table
+                    self._make_table(ddb, session)
                 else:
                     log.crit(f"The feed cache table \"{table_name}\" does not exist, and make_table is not True.")
                     raise Exception()
+            else:
+                self._table = ddb.Table(table_name)
         except:
             log.crit("Could not instantiate the FeedCache object.")
             raise Exception()
 
-    def get_all(self) -> list[dict]:
-        """
-        Scan the entire DynamoDB cache and return all records.
-        """
-        items = None
+    def _make_table(self, ddb_resource: boto3.Session.resource, boto3_session: boto3.session.Session) -> None:
         try:
-            response = self._table.scan()
-            items = response["Items"]
+            log.inform(f"The feed cache table \"{self._table_name}\" doesn\'t exist; attempting to create...")
+            ddb_table = ddb_resource.create_table(
+                TableName=self._table_name,
+                BillingMode="PAY_PER_REQUEST",
+                KeySchema=[
+                        {"AttributeName": self._p_key_name, "KeyType": "HASH"},
+                        {"AttributeName": self._s_key_name, "KeyType": "RANGE"}
+                ],
+                AttributeDefinitions=[
+                    {"AttributeName": self._p_key_name, "AttributeType": "S"},
+                    {"AttributeName": self._s_key_name, "AttributeType": "S"}
+                ],
+            )
+            log.inform("Waiting on the table to be ready...")
+            boto3_session.client("dynamodb").get_waiter("table_exists").wait(TableName=self._table_name)
+            self._table = ddb_table
         except:
-            log.crit("The get_all attempt encountered an exception")
+            log.crit("Could not create the FeedCache table.")
             raise Exception()
-        return items
 
     def get_item(self, p_key: str, s_key: str) -> dict:
         """
         Get a single item from the DynamoDC cache, if it exists
         """
-        item = None
         try:
             response = self._table.get_item(
                 Key={self._p_key_name: p_key, self._s_key_name: s_key}
             )
-            item = response.get("Item")
+            return response.get("Item")
         except Exception as ex:
             log.crit(f"The get_item attempt encountered an exception: \"{ex}\"")
             raise Exception()
-        return item
 
     def put_item(self, p_key: str, s_key: str, link: str, title: str, tooted: bool) -> None:
         """
@@ -124,7 +111,7 @@ class FeedCache:
                     self._s_key_name: s_key,
                     "link": link,
                     "title": title,
-                    "tooted": tooted,
+                    "tooted": tooted
                 }
             )
         except Exception as ex:

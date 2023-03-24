@@ -25,7 +25,6 @@ class EncryptedToken:
         """
         global log
         log = Log()
-        self._F = None
         self._T = encrypted_token
         try:
             self._F = Fernet(fernet_key)
@@ -37,10 +36,8 @@ class EncryptedToken:
         """
         Decrypt the Fernet-encrypted token.
         """
-        decrypted_token = None
         try:
-            decrypted_token = self._F.decrypt(self._T).decode("utf-8")
+            return self._F.decrypt(self._T).decode("utf-8")
         except:
             log.crit(f"The encrypted token was invalid: {self._T=}")
             raise Exception()
-        return decrypted_token

@@ -4,8 +4,8 @@ Load variables from settings file, override with environment variables if presen
 import re
 from ast import literal_eval
 from os import getenv
-from typing import Dict, List, Tuple
 from settings import _settings as S
+from typing import Dict, List, Tuple
 
 
 def convert_string(in_string: str = None):
