@@ -92,5 +92,7 @@ MASTODON_STATUS_VISIBILITY = "public" <---- can leave as-is unless testing
 **Note:** This utility has not been tested with Atom feeds, though it should be trivial to modify to accomodate them.
 
 **Note:** Critical access and API keys must be encrypted with Fernet and the resulting encrypted tokens stored in the settings file (or provided as environment variables). You can generate a Fernet key and create encrypted tokens using that key with the online Fernet utility located [here](https://8gwifi.org/fernet.jsp).
- 
+
 **Note:** _**DO NOT**_ store your Fernet key in the settings file. You should supply the Fernet key either by passing it as an argument to the utility, or by setting the environment variable `FERNET_KEY` with the appropriate Fernet key value. With either of these methods, it's good practice to purge your shell history of the commands so that your Fernet key does not remain behind in plain text on your system.
+
+© Copyright 2023, Chris Halstead

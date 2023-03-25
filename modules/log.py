@@ -1,5 +1,6 @@
 """
 A simple logging wrapper class
+© Copyright 2023, Chris Halstead
 """
 
 

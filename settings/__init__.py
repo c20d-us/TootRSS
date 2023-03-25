@@ -1,5 +1,6 @@
 """
 Load variables from settings file, override with environment variables if present
+© Copyright 2023, Chris Halstead
 """
 import re
 from ast import literal_eval

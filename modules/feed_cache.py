@@ -1,5 +1,6 @@
 """
 A wrapper class for the feed cache stored in DynamoDB
+© Copyright 2023, Chris Halstead
 """
 import boto3.session
 from modules.log import Log

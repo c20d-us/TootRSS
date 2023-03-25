@@ -1,5 +1,6 @@
 """
 These settings are used unless overriden by identical variables defined in the local environment
+© Copyright 2023, Chris Halstead
 """
 # The AWS access key ID for AWS DynamoDB access - Fernet-encrypted
 AWS_ACCESS_KEY_ID = "xxxx"

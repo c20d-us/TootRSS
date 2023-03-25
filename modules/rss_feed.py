@@ -1,5 +1,6 @@
 """
 A wrapper class for an RSS feed
+© Copyright 2023, Chris Halstead
 """
 import feedparser
 from modules.log import Log

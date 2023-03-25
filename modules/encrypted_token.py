@@ -1,5 +1,6 @@
 """
 A module for handling Fernet-encrypted tokens
+© Copyright 2023, Chris Halstead
 """
 from cryptography.fernet import Fernet
 from modules.log import Log

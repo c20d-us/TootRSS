@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
 The TootRSS client - reads an RSS feed and toots new feed items to a Mastodon account
+© Copyright 2023, Chris Halstead
 """
 import argparse
 import settings as S
