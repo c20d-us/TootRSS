@@ -13,7 +13,7 @@ from modules.rss_feed import Feed
 
 # Global variables
 CACHE = FEED = MASTODON = log = None
-CACHE_ONLY = MAKE_TABLE = QUIET = VERBOSE = False
+ASK_KEY = CACHE_ONLY = MAKE_TABLE = QUIET = VERBOSE = False
 CACHED_ITEMS = POSTED_ITEMS = PROCESSED_ITEMS = 0
 
 
@@ -21,6 +21,12 @@ def getArgParser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(
         prog="tootrss",
         description="A utility to toot rss posts to Mastodon"
+    )
+    ap.add_argument(
+        "-a",
+        "--ask_key",
+        action="store_true",
+        help="ask user to input Fernet key"
     )
     ap.add_argument(
         "-c",
@@ -57,13 +63,22 @@ def getArgParser() -> argparse.ArgumentParser:
 
 def get_args() -> None:
     # Get arguments passed into the program
-    global CACHE_ONLY, MAKE_TABLE, QUIET, VERBOSE
+    global ASK_KEY, CACHE_ONLY, MAKE_TABLE, QUIET, VERBOSE
     args = getArgParser().parse_args()
     S.FERNET_KEY = args.fernet_key or S.FERNET_KEY
+    ASK_KEY = args.ask_key
     CACHE_ONLY = args.cache
     MAKE_TABLE = args.make_table
     QUIET = args.quiet
     VERBOSE = args.verbose
+
+
+def get_key() -> None:
+    global FERNET_KEY
+    if ASK_KEY:
+        key = input("Fernet key: ")
+        if key:
+            S.FERNET_KEY = key
 
 
 def init() -> None:
@@ -148,6 +163,7 @@ def process_feed() -> None:
 
 if __name__ == "__main__":
     get_args()
+    get_key()
     log = Log(quiet=QUIET, verbose=VERBOSE)
     try:
         init()

@@ -4,12 +4,13 @@ TootRSS is utility that will read an RSS feed and toot new posts in the feed to 
 
 ## Usage
 ```
-usage: tootrss [-h] [-c] [-m] [-q] [-v] [-k FERNET_KEY]
+usage: tootrss [-h] [-a] [-c] [-m] [-q] [-v] [-k FERNET_KEY]
 
-s utility to toot rss posts to Mastodon
+A utility to toot rss posts to Mastodon
 
 optional arguments:
   -h, --help            show this help message and exit
+  -a, --ask_key         ask user to input Fernet key
   -c, --cache           build the feed cache - do not toot
   -m, --make_table      create the feed cache table if it does not exist
   -q, --quiet           suppress all progress messages
@@ -20,6 +21,11 @@ optional arguments:
 
 ## Examples
 
+Read the feed and toot anything new, asking for the Fernet key interactively:
+```
+mymac:~ jdoe$ ./tootrss -a
+Fernet key: 3r...M= ↵
+```
 Read the feed and toot anything new, passing the Fernet key as an argument:
 ```
 mymac:~ jdoe$ ./tootrss -k xxxx
@@ -93,6 +99,6 @@ MASTODON_STATUS_VISIBILITY = "public" <---- can leave as-is unless testing
 
 **Note:** Critical access and API keys must be encrypted with Fernet and the resulting encrypted tokens stored in the settings file (or provided as environment variables). You can generate a Fernet key and create encrypted tokens using that key with the online Fernet utility located [here](https://8gwifi.org/fernet.jsp).
 
-**Note:** _**DO NOT**_ store your Fernet key in the settings file. You should supply the Fernet key either by passing it as an argument to the utility, or by setting the environment variable `FERNET_KEY` with the appropriate Fernet key value. With either of these methods, it's good practice to purge your shell history of the commands so that your Fernet key does not remain behind in plain text on your system.
+**Note:** _**DO NOT**_ store your Fernet key in the settings file. You should supply the Fernet key either by providing it interactively (using the `-a` flag), passing it as an argument to the utility, or by setting the environment variable `FERNET_KEY` with the appropriate Fernet key value. With either of the second two methods, it's good practice to purge your shell history of the commands so that your Fernet key does not remain behind in plain text on your system.
 
 © Copyright 2023, Chris Halstead
