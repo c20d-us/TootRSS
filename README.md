@@ -4,19 +4,19 @@ TootRSS is utility that will read an RSS feed and toot new posts in the feed to 
 
 ## Usage
 ```
-usage: tootrss [-h] [-a] [-c] [-m] [-q] [-v] [-k FERNET_KEY]
+usage: tootrss [-h] [-a] [-c] [-k FERNET_KEY] [-m] [-q] [-v]
 
 A utility to toot rss posts to Mastodon
 
 optional arguments:
   -h, --help            show this help message and exit
   -a, --ask_key         ask user to input the Fernet key
-  -c, --cache           build the feed cache - do not toot
-  -m, --make_table      create the feed cache table if it does not exist
-  -q, --quiet           suppress all progress messages
-  -v, --verbose         provide additional progress messaging
+  -c, --cache           just build the feed cache, do not toot
   -k FERNET_KEY, --fernet_key FERNET_KEY
                         the Fernet key used to ecrypt tokens
+  -m, --make_table      create the feed cache table if it does not exist
+  -q, --quiet           suppress all progress messages
+  -v, --verbose         provide additional progress messages
 ```
 
 ## Examples

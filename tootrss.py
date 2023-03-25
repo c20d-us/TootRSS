@@ -32,7 +32,13 @@ def getArgParser() -> argparse.ArgumentParser:
         "-c",
         "--cache",
         action="store_true",
-        help="build the feed cache - do not toot"
+        help="just build the feed cache, do not toot"
+    )
+    ap.add_argument(
+        "-k",
+        "--fernet_key",
+        default=None,
+        help="the Fernet key used to ecrypt tokens"
     )
     ap.add_argument(
         "-m",
@@ -50,13 +56,7 @@ def getArgParser() -> argparse.ArgumentParser:
         "-v",
         "--verbose",
         action="store_true",
-        help="provide additional progress messaging"
-    )
-    ap.add_argument(
-        "-k",
-        "--fernet_key",
-        default=None,
-        help="the Fernet key used to ecrypt tokens"
+        help="provide additional progress messages"
     )
     return ap
 
