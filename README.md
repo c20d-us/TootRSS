@@ -10,7 +10,7 @@ A utility to toot rss posts to Mastodon
 
 optional arguments:
   -h, --help            show this help message and exit
-  -a, --ask_key         ask user to input Fernet key
+  -a, --ask_key         ask user to input the Fernet key
   -c, --cache           build the feed cache - do not toot
   -m, --make_table      create the feed cache table if it does not exist
   -q, --quiet           suppress all progress messages
@@ -24,7 +24,7 @@ optional arguments:
 Read the feed and toot anything new, asking for the Fernet key interactively:
 ```
 mymac:~ jdoe$ ./tootrss -a
-Fernet key: 3r...M= ↵
+Fernet key: <your Fernet key here> ↵
 ```
 Read the feed and toot anything new, passing the Fernet key as an argument:
 ```

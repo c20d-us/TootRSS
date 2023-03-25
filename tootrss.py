@@ -26,7 +26,7 @@ def getArgParser() -> argparse.ArgumentParser:
         "-a",
         "--ask_key",
         action="store_true",
-        help="ask user to input Fernet key"
+        help="ask user to input the Fernet key"
     )
     ap.add_argument(
         "-c",
