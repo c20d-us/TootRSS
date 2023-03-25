@@ -10,16 +10,16 @@ from modules.feed_cache import FeedCache
 from modules.log import Log
 from modules.rss_feed import Feed
 
-# Global variables used later
+# Global variables
 CACHE = FEED = MASTODON = log = None
 CACHE_ONLY = MAKE_TABLE = QUIET = VERBOSE = False
 CACHED_ITEMS = POSTED_ITEMS = PROCESSED_ITEMS = 0
 
 
 def getArgParser() -> argparse.ArgumentParser:
-    ap=argparse.ArgumentParser(
+    ap = argparse.ArgumentParser(
         prog="tootrss",
-        description="a utility to toot rss posts to Mastodon"
+        description="A utility to toot rss posts to Mastodon"
     )
     ap.add_argument(
         "-c",
@@ -69,22 +69,20 @@ def init() -> None:
     # Initialize the globals
     global CACHE, FEED, MASTODON
     try:
-        aws_access_key = EncryptedToken(S.FERNET_KEY, S.AWS_ACCESS_KEY).decrypt()
-        aws_access_key_id = EncryptedToken(S.FERNET_KEY, S.AWS_ACCESS_KEY_ID).decrypt()
-        mastodon_access_token = EncryptedToken(S.FERNET_KEY, S.MASTODON_ACCESS_TOKEN).decrypt()
         CACHE = FeedCache(
             settings=S,
-            access_key_id=aws_access_key_id,
-            access_key=aws_access_key,
+            access_key_id=EncryptedToken(S.FERNET_KEY, S.AWS_ACCESS_KEY_ID).decrypt(),
+            access_key=EncryptedToken(S.FERNET_KEY, S.AWS_ACCESS_KEY).decrypt(),
             make_table=MAKE_TABLE
         )
         FEED = Feed(S.FEED_URL)
         MASTODON = Mastodon(
-            access_token=mastodon_access_token,
+            access_token=EncryptedToken(S.FERNET_KEY, S.MASTODON_ACCESS_TOKEN).decrypt(),
             api_base_url=S.MASTODON_BASE_URL
         )
     except:
         log.crit("Initialization of global variables failed.")
+        raise Exception()
 
 
 def cache_item(feed: Feed, item_key: str) -> None:
@@ -99,9 +97,9 @@ def cache_item(feed: Feed, item_key: str) -> None:
             tooted=True
         )
         CACHED_ITEMS += 1
-        log.inform(f'Cached item "{item_key}" in the feed cache.')
+        log.inform(f"Cached item '{item_key}' in the feed cache.")
     except:
-        log.crit(f"Caching the item {item_key} into the feed cache failed.")
+        log.crit(f"Caching the item '{item_key}' into the feed cache failed.")
         raise Exception()
 
 
@@ -111,17 +109,17 @@ def post_item(feed: Feed, item_key: str) -> None:
     try:
         MASTODON.status_post(
             (
-                f"I just published a new post on {feed.title}. Check it out!\n\n"
+                f"☕ I just published a new post on {feed.title}. Check it out!\n\n"
                 f"\"{feed.items[item_key]['title']}\"\n"
                 f"{feed.items[item_key]['link']}"
             ),
             visibility=S.MASTODON_STATUS_VISIBILITY,
         )
         POSTED_ITEMS += 1
-        log.inform(f"Posted item \"{feed.items[item_key]['title']}\" to Mastodon.")
+        log.inform(f"Posted item '{feed.items[item_key]['title']}' to Mastodon.")
     except Exception as ex:
-        log.crit(f'The status_post call to Mastodon encountered an exception: "{ex}"')
-        log.crit(f"Posting the item {item_key} to Mastondon failed.")
+        log.crit(f"The status_post call to Mastodon encountered an exception: '{ex}'")
+        log.crit(f"Posting the item '{item_key}' to Mastondon failed.")
         raise Exception()
 
 
@@ -129,7 +127,7 @@ def process_feed() -> None:
     # Get the list of post items in the feed, sorted oldest-to-newest
     global PROCESSED_ITEMS
     for item_key in sorted(FEED.items):
-        log.debug(f"Processing item {item_key}")
+        log.debug(f"Processing item '{item_key}'")
         try:
             # Try to get a cache record for this item
             cache_record = CACHE.get_item(FEED.title, item_key)
@@ -140,7 +138,7 @@ def process_feed() -> None:
                 # Cache the item
                 cache_item(FEED, item_key)
             else:
-                log.debug(f"The item was already in the cache: {item_key}")
+                log.debug(f"The item was already in the cache: '{item_key}'")
             PROCESSED_ITEMS += 1
         except:
             log.crit("Processing of feed items encountered a critical error")

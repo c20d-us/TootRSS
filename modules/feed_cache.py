@@ -42,7 +42,7 @@ class FeedCache:
                 if make_table:
                     self._make_table(session)
                 else:
-                    log.crit(f"The feed cache table \"{self._table_name}\" does not exist, and make_table is not True.")
+                    log.crit(f"The feed cache table '{self._table_name}' does not exist, and the 'make_table' flag is not set.")
                     raise Exception()
             else:
                 self._table = ddb.Table(self._table_name)
@@ -52,7 +52,7 @@ class FeedCache:
 
     def _make_table(self, boto3_session: boto3.session.Session) -> None:
         try:
-            log.inform(f"The feed cache table \"{self._table_name}\" doesn\'t exist; attempting to create...")
+            log.inform(f"The feed cache table '{self._table_name}' doesn't exist; attempting to create...")
             ddb_table = boto3_session.resource("dynamodb").create_table(
                 TableName=self._table_name,
                 BillingMode="PAY_PER_REQUEST",
@@ -63,7 +63,7 @@ class FeedCache:
                 AttributeDefinitions=[
                     {"AttributeName": self._p_key_name, "AttributeType": "S"},
                     {"AttributeName": self._s_key_name, "AttributeType": "S"}
-                ],
+                ]
             )
             log.inform("Waiting on the table to be ready...")
             boto3_session.client("dynamodb").get_waiter("table_exists").wait(TableName=self._table_name)
@@ -82,7 +82,7 @@ class FeedCache:
             )
             return response.get("Item")
         except Exception as ex:
-            log.crit(f"The get_item attempt encountered an exception: \"{ex}\"")
+            log.crit(f"The get_item attempt encountered an exception: '{ex}'")
             raise Exception()
 
     def put_item(self, p_key: str, s_key: str, link: str, title: str, tooted: bool) -> None:
@@ -100,5 +100,5 @@ class FeedCache:
                 }
             )
         except Exception as ex:
-            log.crit(f"The put_item attempt encountered an exception: \"{ex}\"")
+            log.crit(f"The put_item attempt encountered an exception: '{ex}'")
             raise Exception()
