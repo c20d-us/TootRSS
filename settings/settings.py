@@ -13,7 +13,7 @@ DYNAMO_DB_P_KEY_NAME = "feed"
 # The name of the DynamoDB sort key used by the feed cache
 DYNAMO_DB_S_KEY_NAME = "item_id"
 # The name of the DynamoDB table used for the feed cache
-DYNAMO_DB_TABLE = "blog-feed-cache"
+DYNAMO_DB_TABLE_NAME = "blog-feed-cache"
 
 # The URL of the RSS/Atom feed to watch
 FEED_URL = "https://your.blog/index.xml"

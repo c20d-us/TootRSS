@@ -75,13 +75,10 @@ def init() -> None:
         aws_access_key_id = EncryptedToken(S.FERNET_KEY, S.AWS_ACCESS_KEY_ID).decrypt()
         mastodon_access_token = EncryptedToken(S.FERNET_KEY, S.MASTODON_ACCESS_TOKEN).decrypt()
         CACHE = FeedCache(
+            settings=S,
             access_key_id=aws_access_key_id,
             access_key=aws_access_key,
-            make_table=MAKE_TABLE,
-            region=S.AWS_REGION,
-            table_name=S.DYNAMO_DB_TABLE,
-            p_key_name=S.DYNAMO_DB_P_KEY_NAME,
-            s_key_name=S.DYNAMO_DB_S_KEY_NAME
+            make_table=MAKE_TABLE
         )
         FEED = Feed(S.FEED_URL)
         MASTODON = Mastodon(

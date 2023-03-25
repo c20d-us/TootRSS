@@ -4,7 +4,7 @@ Load variables from settings file, override with environment variables if presen
 import re
 from ast import literal_eval
 from os import getenv
-from settings import _settings as S
+from settings import settings as s
 from typing import Dict, List, Tuple
 
 
@@ -55,6 +55,6 @@ def convert_string(in_string: str = None):
 
 # Override settings with values from the environment, if present,
 # and if not set in the environment, use the value from the settings file
-# Only override vars that have names that start with a capital letter.
-for _var in [x for x in vars(S) if re.match("[A-Z]", x)]:
-    globals()[_var] = getenv(_var, getattr(S, _var))
+# Only override vars that have names that contain no lowercase letters.
+for _var in [x for x in vars(s) if re.search("^[^a-z]*$", x)]:
+    globals()[_var] = getenv(_var, getattr(s, _var))

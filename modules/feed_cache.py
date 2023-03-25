@@ -11,64 +11,49 @@ class FeedCache:
 
     Parameters
     ----------
+    settings: settings
+        A settings object
     access_key_id: str
         The AWS access key ID
     access_key: str
         The AWS secret access key
-    region: str
-        The AWS region of the DynamoDB
-    table_name: str
-        The name of the DynamoDB table to use
-    p_key_name: str
-        The name of the table's partition key
-    s_key_name: str
-        The name of the table's sort key
     """
 
     log = None
 
-    def __init__(
-        self,
-        access_key_id: str,
-        access_key: str,
-        make_table: bool,
-        region: str,
-        table_name: str,
-        p_key_name: str,
-        s_key_name: str
-    ) -> None:
+    def __init__(self, settings, access_key_id: str, access_key: str, make_table: bool) -> None:
         """
         The initializer
         """
         global log
         log = Log()
         self._table = None
-        self._p_key_name = p_key_name
-        self._s_key_name = s_key_name
-        self._table_name = table_name
+        self._p_key_name = settings.DYNAMO_DB_P_KEY_NAME
+        self._s_key_name = settings.DYNAMO_DB_S_KEY_NAME
+        self._table_name = settings.DYNAMO_DB_TABLE_NAME
         try:
             session = boto3.session.Session(
                 aws_access_key_id=access_key_id,
                 aws_secret_access_key=access_key,
-                region_name=region
+                region_name=settings.AWS_REGION
             )
             ddb = session.resource("dynamodb")
-            if not table_name in [table.name for table in ddb.tables.all()]:
+            if not self._table_name in [table.name for table in ddb.tables.all()]:
                 if make_table:
-                    self._make_table(ddb, session)
+                    self._make_table(session)
                 else:
-                    log.crit(f"The feed cache table \"{table_name}\" does not exist, and make_table is not True.")
+                    log.crit(f"The feed cache table \"{self._table_name}\" does not exist, and make_table is not True.")
                     raise Exception()
             else:
-                self._table = ddb.Table(table_name)
+                self._table = ddb.Table(self._table_name)
         except:
             log.crit("Could not instantiate the FeedCache object.")
             raise Exception()
 
-    def _make_table(self, ddb_resource: boto3.Session.resource, boto3_session: boto3.session.Session) -> None:
+    def _make_table(self, boto3_session: boto3.session.Session) -> None:
         try:
             log.inform(f"The feed cache table \"{self._table_name}\" doesn\'t exist; attempting to create...")
-            ddb_table = ddb_resource.create_table(
+            ddb_table = boto3_session.resource("dynamodb").create_table(
                 TableName=self._table_name,
                 BillingMode="PAY_PER_REQUEST",
                 KeySchema=[
