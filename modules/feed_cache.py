@@ -57,8 +57,8 @@ class FeedCache:
                 TableName=self._table_name,
                 BillingMode="PAY_PER_REQUEST",
                 KeySchema=[
-                        {"AttributeName": self._p_key_name, "KeyType": "HASH"},
-                        {"AttributeName": self._s_key_name, "KeyType": "RANGE"}
+                    {"AttributeName": self._p_key_name, "KeyType": "HASH"},
+                    {"AttributeName": self._s_key_name, "KeyType": "RANGE"}
                 ],
                 AttributeDefinitions=[
                     {"AttributeName": self._p_key_name, "AttributeType": "S"},

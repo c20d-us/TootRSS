@@ -11,7 +11,7 @@ class Feed:
 
     Parameters
     ----------
-    feed_uri: str
+    feed_url: str
         The URL of the feed to retrieve and parse
     """
 
@@ -33,17 +33,6 @@ class Feed:
             self._title = self._data.feed.title
             self._load_items()
 
-    def _make_datestamp(self, date_tuple: tuple = None) -> str:
-        """
-        Make a 14-digit datestamp from the pubDate date tuple (ex. 20230101000000)
-        """
-        d = "0" * 14
-        if date_tuple:
-            d = f"{date_tuple[0]:04}"
-            for i in range(1, 6):
-                d = "".join([d, f"{date_tuple[i]:02}"])
-        return d
-
     def _load_items(self) -> bool:
         """
         Load all items from the feed into the '_items' class attribute
@@ -58,6 +47,17 @@ class Feed:
                     "link": entry.link,
                     "tooted": False,
                 }
+
+    def _make_datestamp(self, date_tuple: tuple = None) -> str:
+        """
+        Make a 14-digit datestamp from the pubDate date tuple (ex. 20230101000000)
+        """
+        d = "0" * 14
+        if date_tuple:
+            d = f"{date_tuple[0]:04}"
+            for i in range(1, 6):
+                d = "".join([d, f"{date_tuple[i]:02}"])
+        return d
 
     @property
     def title(self) -> str:

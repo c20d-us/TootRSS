@@ -9,7 +9,6 @@ from modules.encrypted_token import EncryptedToken
 from modules.feed_cache import FeedCache
 from modules.log import Log
 from modules.rss_feed import Feed
-from typing import Dict, List, Tuple
 
 # Global variables used later
 CACHE = FEED = MASTODON = log = None
@@ -17,12 +16,11 @@ CACHE_ONLY = MAKE_TABLE = QUIET = VERBOSE = False
 CACHED_ITEMS = POSTED_ITEMS = PROCESSED_ITEMS = 0
 
 
-def getArgParser(
+def getArgParser() -> argparse.ArgumentParser:
     ap=argparse.ArgumentParser(
         prog="tootrss",
         description="a utility to toot rss posts to Mastodon"
     )
-) -> argparse.ArgumentParser:
     ap.add_argument(
         "-c",
         "--cache",
@@ -137,7 +135,7 @@ def process_feed() -> None:
             cache_record = CACHE.get_item(FEED.title, item_key)
             # If the item has not been cached and/or tooted already, we need to decide what to do with it
             if not cache_record or not cache_record["tooted"]:
-                # Toot the item unless we're just caching
+                # Toot the item unless we're just cacheing
                 CACHE_ONLY or post_item(FEED, item_key)
                 # Cache the item
                 cache_item(FEED, item_key)
