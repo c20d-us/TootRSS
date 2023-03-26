@@ -4,6 +4,7 @@ The TootRSS client - reads an RSS feed and toots new feed items to a Mastodon ac
 © Copyright 2023, Chris Halstead
 """
 import argparse
+import pwinput
 import settings as S
 from mastodon import Mastodon
 from modules.encrypted_token import EncryptedToken
@@ -76,7 +77,7 @@ def get_args() -> None:
 def get_key() -> None:
     global FERNET_KEY
     if ASK_KEY:
-        key = input("Fernet key: ")
+        key = pwinput.pwinput(prompt="Fernet key: ")
         if key:
             S.FERNET_KEY = key
 
