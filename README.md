@@ -24,7 +24,7 @@ optional arguments:
 Read the feed and toot anything new, asking for the Fernet key interactively:
 ```
 mymac:~ jdoe$ ./tootrss -a
-Fernet key: <your Fernet key here> ↵
+Fernet key: ************************ ↵
 ```
 Read the feed and toot anything new, passing the Fernet key as an argument:
 ```
