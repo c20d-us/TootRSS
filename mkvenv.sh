@@ -1,7 +1,7 @@
 #!/bin/bash
 
 PY3=`/usr/bin/which python3`
-REQS="./requirements/reqs.txt"
+REQS="./requirements.txt"
 VENV=".venv"
 
 function quit_error {
