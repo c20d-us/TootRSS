@@ -110,7 +110,6 @@ def cache_item(feed: Feed, item_key: str) -> None:
             p_key=feed.title,
             s_key=item_key,
             link=feed.items[item_key]["link"],
-            title=feed.items[item_key]["title"],
             tooted=True
         )
         CACHED_ITEMS += 1

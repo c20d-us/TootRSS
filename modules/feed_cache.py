@@ -86,7 +86,7 @@ class FeedCache:
             log.crit(f"The get_item attempt encountered an exception: '{ex}'")
             raise Exception()
 
-    def put_item(self, p_key: str, s_key: str, link: str, title: str, tooted: bool) -> None:
+    def put_item(self, p_key: str, s_key: str, link: str, tooted: bool) -> None:
         """
         Put a single item into the DynamoDC cache, overwriting if already present
         """
@@ -96,7 +96,6 @@ class FeedCache:
                     self._p_key_name: p_key,
                     self._s_key_name: s_key,
                     "link": link,
-                    "title": title,
                     "tooted": tooted
                 }
             )
