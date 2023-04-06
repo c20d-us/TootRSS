@@ -40,25 +40,10 @@ class Feed:
         """
         if self._data:
             for entry in self._data.entries:
-                item_key = "-".join(
-                    [self._make_datestamp(entry.published_parsed), entry.id]
-                )
-                self._items[item_key] = {
-                    "title": entry.title,
+                self._items[entry.id] = {
                     "link": entry.link,
                     "tooted": False,
                 }
-
-    def _make_datestamp(self, date_tuple: tuple = None) -> str:
-        """
-        Make a 14-digit datestamp from the pubDate date tuple (ex. 20230101000000)
-        """
-        d = "0" * 14
-        if date_tuple:
-            d = f"{date_tuple[0]:04}"
-            for i in range(1, 6):
-                d = "".join([d, f"{date_tuple[i]:02}"])
-        return d
 
     @property
     def title(self) -> str:
