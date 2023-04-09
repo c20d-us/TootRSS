@@ -28,24 +28,22 @@ class Feed:
         self._id = None
         self._entries = {}
         self._data = feedparser.parse(feed_url)
-        self._title = ""
+        self._title = None
+        self._type = "unknown"
         if self._data.bozo:
             log.crit(f"Could not parse the feed '{feed_url}'")
             raise Exception()
         else:
             try:
-                self._type = re.sub(r'[0-9]+', '', self._data.version)
-                log.debug(f"The feed type is '{self._type}'")
+                self._set_type()
                 self._set_id()
-                log.debug(f"The feed id is '{self._id}'")
+                self._set_title()
                 self._load_entries()
-                self._title = self._data.feed.title
-                log.debug(f"The feed title is '{self._title}'")
             except:
                 log.crit(f"Unable to load the feed '{feed_url}'")
                 raise Exception()
 
-    def _set_id(self) -> str:
+    def _set_id(self) -> None:
         if re.match("atom", self._type):
             # if this is an Atom feed, it should have an "id" attribute
             if "id" in self._data.feed:
@@ -58,7 +56,21 @@ class Feed:
             log.crit("Could not set an id for the feed")
             raise Exception()
 
-    def _load_entries(self) -> bool:
+    def _set_title(self) -> None:
+        if "title" in self._data.feed:
+            self._title = self._data.feed.title
+        if not self._title:
+            log.crit("Could not set the title for the feed")
+            raise Exception()
+
+    def _set_type(self) -> None:
+        if "version" in self._data:
+            self._type = re.sub(r'[0-9]+', '', self._data.version)
+        if not self._type:
+            log.crit("Could not set the type for the feed")
+            raise Exception()
+
+    def _load_entries(self) -> None:
         """
         Load all items from the feed into the '_items' class attribute
         """
