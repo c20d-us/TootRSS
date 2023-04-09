@@ -10,9 +10,9 @@ AWS_ACCESS_KEY = "xxxx"
 AWS_REGION = "us-west-2"
 
 # The name of the DynamoDB partition key used by the feed cache
-DYNAMO_DB_P_KEY_NAME = "feed"
+DYNAMO_DB_P_KEY_NAME = "feed_id"
 # The name of the DynamoDB sort key used by the feed cache
-DYNAMO_DB_S_KEY_NAME = "item_id"
+DYNAMO_DB_S_KEY_NAME = "entry_id"
 # The name of the DynamoDB table used for the feed cache
 DYNAMO_DB_TABLE_NAME = "blog-feed-cache"
 

@@ -15,7 +15,7 @@ from modules.rss_feed import Feed
 # Global variables
 CACHE = FEED = MASTODON = log = None
 ASK_KEY = CACHE_ONLY = MAKE_TABLE = QUIET = VERBOSE = False
-CACHED_ITEMS = POSTED_ITEMS = PROCESSED_ITEMS = 0
+CACHED_ENTRIES = POSTED_ENTRIES = PROCESSED_ENTRIES = 0
 
 
 def getArgParser() -> argparse.ArgumentParser:
@@ -102,60 +102,61 @@ def init() -> None:
         raise Exception()
 
 
-def cache_item(feed: Feed, item_key: str) -> None:
-    # Put an item into the FeedCache
-    global CACHED_ITEMS
+def cache_entry(feed: Feed, entry_key: str) -> None:
+    # Put an entry into the FeedCache
+    global CACHED_ENTRIES
     try:
         CACHE.put_item(
-            p_key=feed.title,
-            s_key=item_key,
-            link=feed.items[item_key]["link"],
+            p_key=feed.id,
+            s_key=entry_key,
+            link=feed.entries[entry_key]["link"],
             tooted=True
         )
-        CACHED_ITEMS += 1
-        log.inform(f"Cached item '{item_key}' in the feed cache.")
+        CACHED_ENTRIES += 1
+        log.inform(f"Cached entry '{entry_key}' in the feed cache.")
     except:
-        log.crit(f"Caching the item '{item_key}' into the feed cache failed.")
+        log.crit(f"Caching the entry '{entry_key}' into the feed cache failed.")
         raise Exception()
 
 
-def post_item(feed: Feed, item_key: str) -> None:
+def post_entry(feed: Feed, entry_key: str) -> None:
     # Post a status for this feed item
-    global POSTED_ITEMS
+    global POSTED_ENTRIES
+    post_text = f"☕ I just published a new post on {feed.title}. Check it out!\n\n"
+    post_text += f"\"{feed.entries[entry_key]['title']}\"\n"
+    if feed.entries[entry_key]['summary']:
+        post_text += f"{feed.entries[entry_key]['summary']}\n\n"
+    post_text += f"{feed.entries[entry_key]['link']}"
     try:
         MASTODON.status_post(
-            (
-                f"☕ I just published a new post on {feed.title}. Check it out!\n\n"
-                f"\"{feed.items[item_key]['title']}\"\n"
-                f"{feed.items[item_key]['link']}"
-            ),
+            post_text,
             visibility=S.MASTODON_STATUS_VISIBILITY,
         )
-        POSTED_ITEMS += 1
-        log.inform(f"Posted item '{feed.items[item_key]['title']}' to Mastodon.")
+        POSTED_ENTRIES += 1
+        log.inform(f"Posted entry '{feed.entries[entry_key]['title']}' to Mastodon.")
     except Exception as ex:
         log.crit(f"The status_post call to Mastodon encountered an exception: '{ex}'")
-        log.crit(f"Posting the item '{item_key}' to Mastondon failed.")
+        log.crit(f"Posting the entry '{entry_key}' to Mastondon failed.")
         raise Exception()
 
 
 def process_feed() -> None:
     # Get the list of post items in the feed, sorted oldest-to-newest
-    global PROCESSED_ITEMS
-    for item_key in sorted(FEED.items):
-        log.debug(f"Processing item '{item_key}'")
+    global PROCESSED_ENTRIES
+    for entry_key in sorted(FEED.entries):
+        log.debug(f"Processing item '{entry_key}'")
         try:
             # Try to get a cache record for this item
-            cache_record = CACHE.get_item(FEED.title, item_key)
+            cache_record = CACHE.get_item(FEED.id, entry_key)
             # If the item has not been cached and/or tooted already, we need to decide what to do with it
             if not cache_record or not cache_record["tooted"]:
                 # Toot the item unless we're just cacheing
-                CACHE_ONLY or post_item(FEED, item_key)
+                CACHE_ONLY or post_entry(FEED, entry_key)
                 # Cache the item
-                cache_item(FEED, item_key)
+                cache_entry(FEED, entry_key)
             else:
-                log.debug(f"The item was already in the cache: '{item_key}'")
-            PROCESSED_ITEMS += 1
+                log.debug(f"The item was already in the cache: '{entry_key}'")
+            PROCESSED_ENTRIES += 1
         except:
             log.crit("Processing of feed items encountered a critical error")
             raise Exception()
@@ -169,9 +170,9 @@ if __name__ == "__main__":
         init()
         process_feed()
         log.inform(
-            f"Processed {PROCESSED_ITEMS} items\n"
-            f"Posted {POSTED_ITEMS} items to Mastodon\n"
-            f"Cached {CACHED_ITEMS} items in the feed cache"
+            f"Processed {PROCESSED_ENTRIES} items\n"
+            f"Posted {POSTED_ENTRIES} items to Mastodon\n"
+            f"Cached {CACHED_ENTRIES} items in the feed cache"
         )
     except:
         log.crit("TootRSS encountered a fatal exception - exiting")
