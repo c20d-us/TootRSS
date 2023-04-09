@@ -25,9 +25,9 @@ class Feed:
         """
         global log
         log = Log()
-        self._id = None
-        self._entries = {}
         self._data = feedparser.parse(feed_url)
+        self._entries = {}
+        self._id = None
         self._title = None
         self._type = "unknown"
         if self._data.bozo:
@@ -42,6 +42,26 @@ class Feed:
             except:
                 log.crit(f"Unable to load the feed '{feed_url}'")
                 raise Exception()
+
+    def _load_entries(self) -> None:
+        """
+        Load all entries from the feed into the '_entries' class attribute
+        """
+        if self._data:
+            for entry in self._data.entries:
+                if self._type == "atom":
+                    summary = entry.summary or None
+                else:
+                    summary = None
+                self._entries[entry.id] = {
+                    "link": entry.link,
+                    "summary": summary,
+                    "title": entry.title,
+                    "tooted": False,
+                }
+        else:
+            log.crit("Could not load the feed entries - data was None")
+            raise Exception()
 
     def _set_id(self) -> None:
         if re.match("atom", self._type):
@@ -69,23 +89,6 @@ class Feed:
         if not self._type:
             log.crit("Could not set the type for the feed")
             raise Exception()
-
-    def _load_entries(self) -> None:
-        """
-        Load all items from the feed into the '_items' class attribute
-        """
-        if self._data:
-            for entry in self._data.entries:
-                if self._type == "atom":
-                    summary = entry.summary or None
-                else:
-                    summary = None
-                self._entries[entry.id] = {
-                    "link": entry.link,
-                    "summary": summary,
-                    "title": entry.title,
-                    "tooted": False,
-                }
 
     @property
     def id(self) -> str:
